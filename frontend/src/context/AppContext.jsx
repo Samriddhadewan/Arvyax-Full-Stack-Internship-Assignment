@@ -13,24 +13,35 @@ export const AppProvider = ({ children }) => {
   
   
   
-
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    setToken(token);
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`; 
-
-    axios.get("/api/user")
-    .then((res)=> {
-        if(res.data.success){
-            setUser(res.data.user)
-        }
-    })
-    .catch((err)=>{
-        console.error("Failed to fetch data", err)
-    })
+  const storedToken = localStorage.getItem("token");
+  if (storedToken) {
+    setToken(storedToken);
   }
 }, []);
+
+  useEffect(() => {
+  const fetchUser = async ()=>{
+    if(!token) return;
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+    try{
+      const res = await axios.get("/api/user")
+      if(res.data.success){
+        setUser(res.data.user);
+      }
+    }catch(error){
+      setToken(null)
+      setUser(null)
+      localStorage.removeItem('token');
+      delete axios.defaults.headers.common[`Authorization`];
+      navigate('/user')
+    }
+  }
+  fetchUser()
+}, [navigate, token]);
+
 
 const value = {
     navigate,

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 
 
 const Login = () => {
-  const {setToken, navigate, setUser} = useAppContext();
+  const {setToken, navigate,token} = useAppContext();
 
   const [currentState, setCurrentState] = useState("login");
 
@@ -13,48 +13,38 @@ const Login = () => {
   const [email,setEmail] = useState('')
   const [password,setPassword] = useState('')
 
+
+  useEffect(()=>{
+    if(token){
+      navigate('/')
+    }
+  },[token, navigate])
+
   const onSubmitHandler = async (e) => {
     e.preventDefault()
     try {
-      if(currentState === "login"){
-        const res = await axios.post("/api/login", {email, password})
-        if(res.data.success){
-          toast.success('Successfully Logged In')
-          const token = res.data.token;
-
-          localStorage.setItem('token', token);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          setToken(token)
-
-          const profileRes = await axios.get("/api/user");
-          if(profileRes.data.success){
-            setUser(profileRes.data.user);
-            navigate("/")
-          }
-        }
-        else{
-          toast.error(res.data.message)
-        }
-      }
-      else{
-        const res = await axios.post("/api/register", {name,email, password})
-        if(res.data.success){
-          toast.success('Successfully Created Account')
-          const token = res.data.token;
-
-          localStorage.setItem('token', token);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          setToken(token)
-
-          const profileRes = await axios.get("/api/user");
-          if(profileRes.data.success){
-            setUser(profileRes.data.user);
-            navigate("/")
-          }
-        }
+      const payload = currentState === 'login' 
+      ? {email, password}
+      : {name, email, password};
+      
+      const endpoints = currentState === "login" ? "/api/login" : "/api/register";
+      const res = await axios.post(endpoints, payload)
+      
+      if(res.data.success){
+        toast.success(
+        currentState === "login"
+          ? "Successfully Logged In"
+          : "Successfully Created Account"
+      );
+      const token = res.data.token;
+      setToken(token)
+      localStorage.setItem("token", token)
+      navigate('/')
+      }else{
+        toast.error(res.data.message)
       }
     } catch (error) {
-      alert(error.message)
+      toast.error(error.message)
     }
   };
 
