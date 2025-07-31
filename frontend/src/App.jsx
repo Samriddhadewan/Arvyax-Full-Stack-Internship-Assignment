@@ -3,9 +3,10 @@ import "./App.css";
 import Home from "./pages/Home.jsx";
 import Layout from "./pages/user/Layout.jsx";
 import Login from "./components/user/Login.jsx";
+import { useAppContext } from "./context/AppContext.jsx";
 
 function App() {
-  const token = false;
+  const {token} = useAppContext()
   return (
     <div>
       <Routes>
