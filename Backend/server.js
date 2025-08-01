@@ -3,6 +3,7 @@ import "dotenv/config"
 import cors from "cors"
 import connectDb from "./configs/db.js";
 import userRouter from "./routes/userRoute.js";
+import sessionRouter from "./routes/sessionRoute.js";
 
 const app = express()
 const PORT = process.env.PORT || 3000;
@@ -16,6 +17,7 @@ app.use(express.json())
 
 // api endpoints 
 app.use('/api', userRouter)
+app.use('/api', sessionRouter)
 
 
 
