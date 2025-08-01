@@ -3,115 +3,132 @@ import { useAppContext } from "../../context/AppContext.jsx";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-
 const Login = () => {
-  const {setToken, navigate,token} = useAppContext();
+  const { setToken, navigate, token } = useAppContext();
 
   const [currentState, setCurrentState] = useState("login");
 
-  const [name,setName] = useState('')
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-
-  useEffect(()=>{
-    if(token){
-      navigate('/')
+  useEffect(() => {
+    if (token) {
+      navigate("/");
     }
-  },[token, navigate])
+  }, [token, navigate]);
 
   const onSubmitHandler = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
     try {
-      const payload = currentState === 'login' 
-      ? {email, password}
-      : {name, email, password};
-      
-      const endpoints = currentState === "login" ? "/api/login" : "/api/register";
-      const res = await axios.post(endpoints, payload)
-      
-      if(res.data.success){
-        toast.success(
+      const payload =
         currentState === "login"
-          ? "Successfully Logged In"
-          : "Successfully Created Account"
-      );
-      const token = res.data.token;
-      setToken(token)
-      localStorage.setItem("token", token)
-      navigate('/')
-      }else{
-        toast.error(res.data.message)
+          ? { email, password }
+          : { name, email, password };
+
+      const endpoints =
+        currentState === "login" ? "/api/login" : "/api/register";
+      const res = await axios.post(endpoints, payload);
+
+      if (res.data.success) {
+        toast.success(
+          currentState === "login"
+            ? "Successfully Logged In"
+            : "Successfully Created Account"
+        );
+        const token = res.data.token;
+        setToken(token);
+        localStorage.setItem("token", token);
+        navigate("/");
+      } else {
+        toast.error(res.data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-
-
-
   return (
     <div className="min-h-screen flex items-center justify-center">
-        <form
-      onSubmit={onSubmitHandler}
-      className="flex flex-col rounded-sm items-center border-[#D9885B]/95 shadow-xl shadow-[#D9885B]/15 w-[90%] border px-5 py-8 sm:max-w-96 m-auto  gap-4 text-gray-800"
-    >
-      <div className="inline-flex items-center gap-2 mb-2 mt-10">
-        <p className="prata-regular text-3xl"> <span className=" text-[#D9885B] font-semibold" >User</span> {currentState}</p>
-        <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
-      </div>
+      <form
+        onSubmit={onSubmitHandler}
+        className="flex flex-col rounded-sm items-center border-[#D9885B]/95 shadow-xl shadow-[#D9885B]/15 w-[90%] border px-5 py-8 sm:max-w-96 m-auto  gap-4 text-gray-800"
+      >
+        <div className="inline-flex items-center gap-2 mb-2 mt-10">
+          <p className="prata-regular text-3xl">
+            {" "}
+            <span className=" text-[#D9885B] font-semibold">User</span>{" "}
+            {currentState}
+          </p>
+          <hr className="border-none h-[1.5px] w-8 bg-gray-800" />
+        </div>
 
-      {currentState === "login" ? (
-        ""
-      ) : (
+        {currentState === "login" ? (
+          ""
+        ) : (
+          <input
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+            type="text"
+            className="w-full px-3 py-1 border border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-[#D9885B]"
+            placeholder="Name"
+            required
+          />
+        )}
         <input
-        onChange={(e)=> setName(e.target.value)}
-        value={name}
-        type="text"
-          className="w-full px-3 border py-1 border-gray-800"
-          placeholder="Name"
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+          type="email"
+          className="w-full px-3 py-1 border border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-[#D9885B]"
+          placeholder="Email"
           required
         />
-      )}
-      <input
-      onChange={(e)=>setEmail(e.target.value)}
-      value={email}
-        type="email"
-        className="w-full px-3 border py-1 border-gray-800"
-        placeholder="Email"
-        required
-      />
-      <input
-      onChange={(e)=>setPassword(e.target.value)}
-      value={password}
-        type="password"
-        className="w-full px-3 border py-1 border-gray-600"
-        placeholder="Password"
-        required
-      />
+        <input
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+          type="password"
+          className="w-full px-3 py-1 border border-gray-400 rounded focus:outline-none focus:ring-2 focus:ring-[#D9885B]"
+          placeholder="Password"
+          required
+        />
 
-      <div className="w-full flex justify-end text-sm mt-[-8] underline">
-        {currentState === "login" ? (
-          <p
-            onClick={() => setCurrentState("Sign up")}
-            className="cursor-pointer"
-          >
-            Create Account
-          </p>
-        ) : (
-          <p
-            onClick={() => setCurrentState("login")}
-            className="cursor-pointer"
-          >
-            Login here
-          </p>
-        )}
-      </div>
-      <button type="submit" className="bg-[#D9885B] rounded hover:bg-[#C84B31] text-white font-white px-8 py-2 mt-4">
-        {currentState === "login" ? "Login" : "Sign Up"}
-      </button>
-    </form>
+        <div className="w-full flex justify-end text-sm mt-[-8] underline">
+          {currentState === "login" ? (
+            <p
+              onClick={() => setCurrentState("Sign up")}
+              className="cursor-pointer"
+            >
+              Create Account
+            </p>
+          ) : (
+            <p
+              onClick={() => setCurrentState("login")}
+              className="cursor-pointer"
+            >
+              Login here
+            </p>
+          )}
+        </div>
+        <button
+          type="submit"
+          className="bg-[#D9885B] rounded hover:bg-[#C84B31] text-white font-white px-8 py-2 mt-4"
+        >
+          {loading ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              {currentState === "login" ? "Logging In..." : "Signing Up..."}
+            </>
+          ) : currentState === "login" ? (
+            "Login"
+          ) : (
+            "Sign Up"
+          )}
+        </button>
+      </form>
     </div>
   );
 };
