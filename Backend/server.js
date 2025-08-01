@@ -15,7 +15,7 @@ app.use(express.json())
 
 
 // api endpoints 
-app.use('/api/user', userRouter)
+app.use('/api', userRouter)
 
 
 

@@ -19,7 +19,7 @@ const loginUser = async (req, res) => {
         if(isMatch){
 
             const token = createToken(user._id)
-            res.json({success : true, token})
+            res.json({success : true,message:"User Login Successful", token})
         }
         else{
             res.json({success:false, message:"Invalid Credentials"})
@@ -62,15 +62,27 @@ const registerUser = async (req, res) => {
         const user = await newUser.save();
         const token = createToken(user._id)
 
-        res.json({success:true,token})
+        res.json({success:true,message:"User Created Successful",token})
 
 
     } catch (error) {
         console.log(error)
         res.json({success: false, message: error.message})
     }
-    
-
 };
 
-export { loginUser, registerUser };
+//   Get user profile route 
+    const getUserProfile = async(req, res)=>{
+        try {
+            const user = await userModel.findById(req.user.id).select("-password")
+            if(!user){
+                return res.json({success:false, message: "User Not Found"})
+            }
+            res.json({success: true, user})
+        } catch (error) {
+            console.log(user);
+            res.json({success : false, message: error.message})
+        }
+    }
+
+export { loginUser, registerUser , getUserProfile };
