@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const sessionSchema = new mongoose.Schema({
-    user_id : {type : mongoose.Schema.Types.ObjectId, ref: 'User',required : false},
+    user_id : {type : mongoose.Schema.Types.ObjectId, ref: 'User',required : true},
     title : {type: String, required: false},
     tags : [String],
     json_file_url : {type : String, required : false},

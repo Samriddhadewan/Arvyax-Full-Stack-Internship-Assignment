@@ -42,6 +42,16 @@ export const AppProvider = ({ children }) => {
   fetchUser()
 }, [navigate, token]);
 
+const fetchSessions = async()=>{
+  const res = await axios.get("/api/sessions")
+  setSessions(res.data.sessions)
+}
+
+useEffect(()=>{
+  fetchSessions()
+},[])
+
+
 
 const value = {
     navigate,

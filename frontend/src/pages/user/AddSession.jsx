@@ -75,7 +75,7 @@ const AddSession = () => {
     }
   } catch (err) {
     console.error("Draft save error:", err);
-    toast.error("Error saving draft");
+    toast.error("Error saving draft, Need all the Field to be filled");
   }
 };
 
@@ -83,6 +83,10 @@ const AddSession = () => {
 
   // Publish
   const handlePublish = async () => {
+    if (!session.title.trim() || !session.tags.trim() || !session.json_file_url.trim()) {
+    toast.error("Please fill in all the fields before publishing.");
+    return;
+  }
     try {
       const payload = {
         ...session,

@@ -4,10 +4,12 @@ const getPublicSessions = async (req, res) => {
   try {
     const sessions = await sessionModel
       .find({ status: "published" })
+      .populate("user_id", "name")  
       .sort({ created_at: -1 });
+
     res.json({ success: true, sessions });
   } catch (error) {
-    res.json({ success: false, message: error.message});
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -32,7 +34,6 @@ const getMySessionById = async (req, res) => {
     res.json({success: false, message: error.message})
   }
 };
-
 
 const saveDraftSession = async (req, res) => {
   const { _id, title, tags, json_file_url } = req.body;
@@ -60,8 +61,6 @@ const saveDraftSession = async (req, res) => {
   res.json({ success: true, session: newSession });
 };
 
-
-
 const publishSession = async (req, res) => {
   try {
     const { _id, title, tags, json_file_url } = req.body;
@@ -77,5 +76,46 @@ const publishSession = async (req, res) => {
   }
 };
 
+const getUserSessionStats = async(req, res)=>{
+  try {
+    const userId = req.user._id;
 
-export { getPublicSessions, getMySessions, getMySessionById, saveDraftSession, publishSession };
+    const totalSessions = await sessionModel.countDocuments({user_id : userId});
+
+    const draftSessions = await sessionModel.countDocuments({
+      user_id: userId,
+      status:"draft",
+    });
+
+    const publishedSessions = await sessionModel.countDocuments({
+      user_id: userId,
+      status: "published"
+    })
+    console.log(totalSessions)
+
+    res.json({success: true, stats:{
+      total : totalSessions,
+      draft: draftSessions,
+      published: publishedSessions,
+    }})
+  } catch (error) {
+    res.json({success: false, message:error.message})
+  }
+}
+
+const getMyPublishedSessions = async(req, res)=>{
+  try {
+     const userId = req.user._id;
+
+     const sessions = await sessionModel.find({
+      user_id: userId,
+      status:'published',
+     }).sort({ created_at: -1 })
+     res.json({success: true, sessions})
+  } catch (error) {
+    res.json({success:false, message: error.message})
+  }
+}
+
+
+export { getPublicSessions, getMySessions, getMySessionById, saveDraftSession, publishSession, getUserSessionStats, getMyPublishedSessions };
